@@ -225,3 +225,10 @@ def delete_note(note_id: int, db: Session = Depends(get_db)) -> Response:
 
     # Explicitly return an empty Response to avoid any body with 204 status.
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+if __name__ == "__main__":
+    # Allow running as: python -m src.api.main from project root or with PYTHONPATH set.
+    import uvicorn
+
+    uvicorn.run("src.api.main:app", host="0.0.0.0", port=3001, reload=False)
