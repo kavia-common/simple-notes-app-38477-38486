@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import or_, select
@@ -197,13 +197,17 @@ def update_note(note_id: int, payload: NoteUpdate, db: Session = Depends(get_db)
     summary="Delete a note by ID",
     tags=["notes"],
     responses={
-        204: {"description": "Note deleted"},
+        204: {"description": "Note deleted (no content)"},
         404: {"description": "Note not found"},
     },
 )
-def delete_note(note_id: int, db: Session = Depends(get_db)) -> None:
+def delete_note(note_id: int, db: Session = Depends(get_db)) -> Response:
     """
     Delete a note by ID.
+
+    Returns:
+      - 204 No Content on successful deletion.
+      - 404 if the note does not exist.
     """
     note = db.get(Note, note_id)
     if not note:
@@ -218,3 +222,6 @@ def delete_note(note_id: int, db: Session = Depends(get_db)) -> None:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete note",
         ) from e
+
+    # Explicitly return an empty Response to avoid any body with 204 status.
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
